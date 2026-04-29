@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift Guide — Tennis Gift</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  body { background: var(--bg-light); }
+
+  /* HERO STRIP */
+  .guide-hero {
+    background: var(--bg-dark); padding: 80px 64px 72px;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .guide-hero .section-label { color: rgba(246,248,255,0.45); }
+  .guide-hero .section-heading { color: var(--text-light); font-size: 80px; margin-bottom: 0; }
+  .guide-hero p { font-size: 17px; color: var(--muted); font-weight: 300; max-width: 540px; line-height: 1.7; }
+
+  /* FILTER BAR */
+  .filter-bar {
+    background: #fff; border-bottom: 1px solid var(--border-light);
+    padding: 0 64px; position: sticky; top: 72px; z-index: 50;
+    display: flex; gap: 0; align-items: center; overflow-x: auto;
+  }
+  .filter-group { display: flex; gap: 0; align-items: center; padding: 18px 0; border-right: 1px solid var(--border-light); padding-right: 32px; margin-right: 32px; }
+  .filter-group:last-child { border-right: none; }
+  .filter-group-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-right: 14px; white-space: nowrap; }
+  .filter-chips { display: flex; gap: 8px; flex-wrap: nowrap; }
+  .filter-chip {
+    font-family: var(--dm); font-size: 13px; padding: 7px 16px; border-radius: 100px;
+    border: 1.5px solid var(--border-light); background: #fff; cursor: pointer;
+    transition: all 0.2s; color: var(--text-dark); white-space: nowrap; font-weight: 400;
+  }
+  .filter-chip:hover { border-color: var(--accent); }
+  .filter-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 500; }
+
+  /* RESULTS COUNT */
+  .results-header {
+    padding: 32px 64px 0; display: flex; align-items: center; justify-content: space-between;
+  }
+  .results-count { font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; color: var(--muted); }
+  .sort-select {
+    font-family: var(--dm); font-size: 13px; color: var(--text-dark);
+    border: 1.5px solid var(--border-light); border-radius: 100px; padding: 8px 16px;
+    background: #fff; cursor: pointer; outline: none; appearance: none;
+    padding-right: 32px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a8fa6' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+  }
+
+  /* PRODUCT GRID */
+  .products-section { padding: 28px 64px 80px; }
+  .product-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+  }
+  .product-card {
+    background: var(--card-bg); border-radius: 16px;
+    padding: 28px 22px; display: flex; flex-direction: column; gap: 14px;
+    cursor: pointer; transition: transform 0.25s, box-shadow 0.25s;
+    position: relative;
+  }
+  .product-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(13,27,42,0.1); }
+  .product-card.hidden { display: none; }
+  .product-chip {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+    color: #fff; background: var(--accent);
+    display: inline-block; padding: 5px 12px; border-radius: 100px;
+    text-transform: uppercase; align-self: flex-start;
+  }
+  .product-illus { display: flex; align-items: center; justify-content: center; min-height: 90px; }
+  .product-illus svg { max-width: 120px; max-height: 100px; }
+  .product-name { font-family: var(--bebas); font-size: 28px; color: var(--text-dark); line-height: 1; font-weight: 600; }
+  .product-tagline { font-size: 12px; color: var(--muted); font-weight: 300; margin-top: -6px; }
+  .product-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+  .product-price { font-family: var(--mono); font-size: 18px; color: var(--text-dark); font-weight: 500; }
+  .budget-tag {
+    position: absolute; top: 14px; right: 14px;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
+    background: rgba(212,232,32,0.12); color: var(--accent);
+    padding: 4px 10px; border-radius: 100px; text-transform: uppercase;
+  }
+  .btn-cart {
+    font-family: var(--dm); font-size: 12px; font-weight: 500;
+    background: var(--text-dark); color: var(--text-light);
+    border: none; border-radius: 100px; padding: 9px 16px;
+    cursor: pointer; transition: all 0.25s ease;
+  }
+  .btn-cart:hover { background: var(--accent); transform: scale(1.04); }
+
+  /* GIFT BUNDLES */
+  .bundles-section { background: var(--bg-dark); padding: 80px 64px; }
+  .bundles-section .section-heading { color: var(--text-light); }
+  .bundles-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .bundle-card {
+    border: 1px solid var(--border-dark); border-radius: 16px; padding: 36px 30px;
+    display: flex; flex-direction: column; gap: 18px;
+    transition: border-color 0.3s, background 0.3s; cursor: pointer;
+  }
+  .bundle-card:hover { border-color: var(--accent); background: rgba(212,232,32,0.05); }
+  .bundle-name { font-family: var(--bebas); font-size: 28px; color: var(--text-light); font-weight: 600; letter-spacing: 0.04em; }
+  .bundle-desc { font-size: 14px; color: var(--muted); font-weight: 300; line-height: 1.7; }
+  .bundle-items { display: flex; flex-direction: column; gap: 6px; }
+  .bundle-item { font-size: 13px; color: rgba(246,248,255,0.6); font-weight: 300; }
+  .bundle-item::before { content: '—  '; color: var(--accent); }
+  .bundle-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+  .bundle-price { font-family: var(--mono); font-size: 22px; color: var(--text-light); }
+  .bundle-save { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
+
+  @media (max-width: 1100px) {
+    .product-grid { grid-template-columns: repeat(3, 1fr); }
+    .bundles-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    .guide-hero { padding: 60px 28px 50px; }
+    .guide-hero .section-heading { font-size: 52px; }
+    .filter-bar { padding: 0 28px; }
+    .products-section, .results-header { padding-left: 28px; padding-right: 28px; }
+    .bundles-section { padding: 60px 28px; }
+    .product-grid { grid-template-columns: repeat(2, 1fr); }
+    .bundles-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html"><span>Tennis</span> Gift</a>
+  <ul class="nav-links">
+    <li><a href="index.html#products">Shop</a></li>
+    <li><a href="gift-guide.html" class="active">Gift Guide</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="index.html#testimonials">Reviews</a></li>
+  </ul>
+  <div class="nav-right">
+    <svg class="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" onclick="window.location='cart.html'">
+      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+    </svg>
+    <a class="btn-fitted" href="gift-guide.html">Find a Gift →</a>
+  </div>
+</nav>
+
+<div class="page-body">
+  <div class="guide-hero">
+    <p class="section-label">Curated Collections</p>
+    <h1 class="section-heading">Gift Guide</h1>
+    <p>Not sure what to get? Filter by budget, occasion or recipient type to find something they'll genuinely love.</p>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <span class="filter-group-label">Budget</span>
+      <div class="filter-chips">
+        <button class="filter-chip active" data-filter="budget" data-value="all" onclick="applyFilter(this)">All</button>
+        <button class="filter-chip" data-filter="budget" data-value="under20" onclick="applyFilter(this)">Under $20</button>
+        <button class="filter-chip" data-filter="budget" data-value="under50" onclick="applyFilter(this)">Under $50</button>
+        <button class="filter-chip" data-filter="budget" data-value="under100" onclick="applyFilter(this)">Under $100</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group-label">Occasion</span>
+      <div class="filter-chips">
+        <button class="filter-chip active" data-filter="occasion" data-value="all" onclick="applyFilter(this)">All</button>
+        <button class="filter-chip" data-filter="occasion" data-value="birthday" onclick="applyFilter(this)">Birthday</button>
+        <button class="filter-chip" data-filter="occasion" data-value="xmas" onclick="applyFilter(this)">Christmas</button>
+        <button class="filter-chip" data-filter="occasion" data-value="stocking" onclick="applyFilter(this)">Stocking Filler</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group-label">Recipient</span>
+      <div class="filter-chips">
+        <button class="filter-chip active" data-filter="recipient" data-value="all" onclick="applyFilter(this)">All</button>
+        <button class="filter-chip" data-filter="recipient" data-value="beginner" onclick="applyFilter(this)">Beginner</button>
+        <button class="filter-chip" data-filter="recipient" data-value="club" onclick="applyFilter(this)">Club Player</button>
+        <button class="filter-chip" data-filter="recipient" data-value="obsessive" onclick="applyFilter(this)">Obsessive Fan</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="results-header">
+    <span class="results-count" id="results-count">10 gifts</span>
+    <select class="sort-select" onchange="sortProducts(this.value)">
+      <option value="default">Sort: Featured</option>
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+    </select>
+  </div>
+
+  <!-- PRODUCT GRID -->
+  <div class="products-section">
+    <div class="product-grid" id="product-grid">
+
+      <div class="product-card" data-price="14" data-budget="under20" data-occasion="birthday xmas stocking" data-recipient="beginner club obsessive" onclick="window.location='product.html'">
+        <span class="budget-tag">Under $20</span>
+        <span class="product-chip">Balls</span>
+        <div class="product-illus">
+          <svg viewBox="0 0 120 100" fill="none"><circle cx="40" cy="55" r="30" fill="#c8f025" opacity="0.12"/><circle cx="40" cy="55" r="30" stroke="#c8f025" stroke-width="3"/><path d="M15 43 Q40 55 15 67" stroke="white" stroke-width="2" fill="none" opacity="0.5"/><path d="M65 43 Q40 55 65 67" stroke="white" stroke-width="2" fill="none" opacity="0.5"/><circle cx="85" cy="46" r="20" stroke="#c8f025" stroke-width="2" fill="none" opacity="0.5"/></svg>
+        </div>
+        <p class="product-name">Classic Ball 3-Pack</p>
+        <p class="product-tagline">Tournament-grade felt, every rally</p>
+        <div class="product-footer">
+          <span class="product-price">$14</span>
+          <button class="btn-cart" onclick="event.stopPropagation(); addToCart('Classic Ball 3-Pack')">Add +</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-price="8" data-budget="under20" data-occasion="birthday stocking" data-recipient="beginner club obsessive" onclick="window.location='product.html'">
+        <span class="budget-tag">Under $20</span>
+        <span class="product-chip">Accessories</span>
+        <div class="product-illus">
+          <svg viewBox="0 0 100 110" fill="none"><circle cx="50" cy="28" r="14" stroke="#0d1b2a" stroke-width="2.5" fill="none"/><line x1="50" y1="42" x2="50" y2="56" stroke="#0d1b2a" stroke-width="2.5"/><circle cx="50" cy="78" r="22" fill="#c8f025" opacity="0.14"/><circle cx="50" cy="78" r="22" stroke="#c8f025" stroke-width="2.5"/></svg>
+        </div>
+        <p class="product-name">Mini Ball Keychain</p>
+        <p class="product-tagline">Carry the game everywhere</p>
+        <div class="product-footer">
+          <span class="product-price">$8</span>
+          <button class="btn-cart" onclick="event.stopPropagation(); addToCart('Mini Ball Keychain')">Add +</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-price="12" data-budget="under20" data-occasion="xmas stocking" data-recipient="beginner club obsessive" onclick="window.location='product.html'">
+        <span class="budget-tag">Under $20</span>
+        <span class="product-chip">Gifts</span>
+        <div class="product-illus">
+          <svg viewBox="0 0 100 110" fill="none"><path d="M50 8 Q58 8 58 14 Q58 20 50 20" stroke="#0d1b2a" stroke-width="2" fill="none"/><ellipse cx="50" cy="60" rx="28" ry="34" stroke="#d4e820" stroke-width="2.5" fill="none"/><line x1="30" y1="46" x2="70" y2="46" stroke="#c8f025" stroke-width="1" opacity="0.6"/><line x1="26" y1="55" x2="74" y2="55" stroke="#c8f025" stroke-width="1" opacity="0.6"/><line x1="26" y1="64" x2="74" y2="64" stroke="#c8f025" stroke-width="1" opacity="0.6"/><line x1="30" y1="73" x2="70" y2="73" stroke="#c8f025" stroke-width="1" opacity="0.6"/><rect x="46" y="93" width="8" height="12" rx="2" fill="#d4e820" opacity="0.5"/></svg>
+        </div>
+        <p class="product-name">Mini Racket Ornament</p>
+        <p class="product-tagline">Perfect stocking stuffer</p>
+        <div class="product-footer">
+          <span class="product-price">$12</span>
+          <button class="btn-cart" onclick="event.stopPropagation(); addToCart('Mini Racket Ornament')">Add +</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-price="22" data-budget="under50" data-occasion="birthday xmas stocking" data-recipient="club obsessive" onclick="window.location='product.html'">
+        <span class="budget-tag">Under $50</span>
+        <span class="product-chip">Balls</span>
+        <div class="product-illus">
+          <svg viewBox="0 0 120 100" fill="none"><circle cx="40" cy="55" r="26" fill="#c8f025" opacity="0.06"/><circle cx="40" cy="55" r="20" fill="#c8f025" opacity="0.14"/><circle cx="40" cy="55" r="20" stroke="#c8f025" stroke-width="2.5"/><circle cx="82" cy="48" r="16" stroke="#c8f025" stroke-width="2" fill="none"/><circle cx="10" cy="22" r="3" fill="#c8f025" opacity="0.5"/><circle cx="108" cy="30" r="2" fill="#c8f025" opacity="0.4"/></svg>
+        </div>
+        <p class="product-name">Glow Balls 4-Pack</p>
+        <p class="product-tagline">Night games, full glow</p>
+        <div class="product-footer">
+          <span class="product-price">$22</span>
+          <button class="btn-cart" onclick="event.stopPropagation(); addToCart('Glow Balls 4-Pack')">Add +</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-price="29" data-budget="under50" data-occasion="birthday xmas" data-recipient="obsessive" onclick="window.location='product.html'">
+        <span class="budget-tag">Under $50</span>
+        <span class="product-chip">Art</span>
+        <div class="product-illus">
+          <svg viewBox="0 0 100 110" fill="none"><rect x="6" y="6" width="88" height="98" rx="3" stroke="#0d1b2a" stroke-width="2.5"/><rect x="14" y="16" width="72" height="72" rx="2" stroke="#d4e820" stroke-width="1.5" fill="none"/><line x1="14" y1="52" x2="86" y2="52" stroke="#d4e820" stroke-width="1"/><line x1="50" y1="16" x2="50" y2="88" stroke="#d4e820" stroke-width="1"/></svg>
+        </div>
+        <p class="product-name">Court Lines Poster</p>
+        <p class="product-tagline">Frame the game you love</p>
+        <div class="product-footer">
+          <span class="product-price">$29</span>
+          <button class="btn-cart" onclick="event.stopPropagation(); addToCart('Court Lines Poster')">Add +</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-price="35" data-budget="under50" data-occasion="birthday xmas" data-recipient="club obsessive" onclick="window.location='product.html'">
+        <span class="budget-tag">Under $50</span>
+        <span class="product-chip">Art</span>
+        <div class="product-illus">
+          <svg viewBox="0 0 100 110" fill="none"><rect x="6" y="6" width="88" height="98" rx="3" stroke="#0d1b2a" stroke-width="2.5"/><circle cx="50" cy="40" r="10" stroke="#d4e820" stroke-width="1.5" fill="none"/><path d="M50 50 L44 64 L32 60" stroke="#d4e820" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M50 50 L60 46 L72 38" stroke="#0d1b2a" stroke-width="1.5" stroke-linecap="round" fill="none"/><ellipse cx="74" cy="36" rx="7" ry="9" stroke="#c8f025" stroke-width="2" fill="none"/><circle cx="80" cy="28" r="4" fill="#c8f025"/></svg>
+        </div>
+        <p class="product-name">Serve Series Poster</p>
+        <p class="product-tagline">Gallery-worthy energy</p>
+        <div class="product-footer">
+          <span class="product-price">$35</span>
+          <button class="btn-cart" onclick="event.stopPropagation(); addToCart('Serve Series Poster')">Add +</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-price="38" data-budget="under50" data-occasion="birthday xmas" data-recipient="beginner club obsessive" onclick="window.location='product.html'">
+        <span class="budget-tag">Under $50</span>
+        <span class="product-chip">Apparel</span>
+        <div class="product-illus">
+          <svg viewBox="0 0 120 90" fill="none"><path d="M30 8 L8 24 L22 30 L22 80 L98 80 L98 30 L112 24 L90 8 Q74 16 60 16 Q46 16 30 8Z" stroke="#0d1b2a" stroke-width="2.5" fill="none"/><text x="60" y="52" font-family="serif" font-size="11" fill="#d4e820" text-anchor="middle" letter-spacing="2">LOVE ALL</text></svg>
+        </div>
+        <p class="product-name">Love All T-Shirt</p>
+        <p class="product-tagline">Court culture, off-court style</p>
+        <div class="product-footer">
+          <span class="product-price">$38</span>
+          <button class="btn-cart" onclick="event.stopPropagation(); addToCart('Love All T-Shirt')">Add +</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-price="42" data-budget="under50" data-occasion="birthday xmas" data-recipient="club obsessive" onclick="window.location='product.html'">
+        <span class="budget-tag">Under $50</span>
+        <span class="product-chip">Apparel</span>
+        <div class="product-illus">
+          <svg viewBox="0 0 120 90" fill="none"><path d="M30 8 L8 24 L22 30 L22 80 L98 80 L98 30 L112 24 L90 8 Q74 16 60 16 Q46 16 30 8Z" stroke="#0d1b2a" stroke-width="2.5" fill="#0d1b2a" fill-opacity="0.04"/><text x="60" y="48" font-family="serif" font-size="16" fill="#d4e820" text-anchor="middle" letter-spacing="1">DEUCE</text></svg>
+        </div>
+        <p class="product-name">Deuce Vintage Tee</p>
+        <p class="product-tagline">Worn-in feel, bold statement</p>
+        <div class="product-footer">
+          <span class="product-price">$42</span>
+          <button class="btn-cart" onclick="event.stopPropagation(); addToCart('Deuce Vintage Tee')">Add +</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-price="48" data-budget="under50 under100" data-occasion="birthday xmas" data-recipient="beginner club obsessive" onclick="window.location='product.html'">
+        <span class="budget-tag">Under $50</span>
+        <span class="product-chip">Gifts</span>
+        <div class="product-illus">
+          <svg viewBox="0 0 120 90" fill="none"><ellipse cx="60" cy="24" rx="42" ry="12" stroke="#0d1b2a" stroke-width="2.5" fill="none"/><rect x="18" y="24" width="84" height="52" stroke="#0d1b2a" stroke-width="2.5" fill="none"/><ellipse cx="60" cy="76" rx="42" ry="12" stroke="#0d1b2a" stroke-width="2.5" fill="none"/><text x="60" y="54" font-family="monospace" font-size="8" fill="#d4e820" text-anchor="middle" letter-spacing="2">YOUR NAME</text></svg>
+        </div>
+        <p class="product-name">Personalised Ball Tin</p>
+        <p class="product-tagline">Custom name, ready to gift</p>
+        <div class="product-footer">
+          <span class="product-price">$48</span>
+          <button class="btn-cart" onclick="event.stopPropagation(); addToCart('Personalised Ball Tin')">Add +</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-price="55" data-budget="under100" data-occasion="birthday xmas" data-recipient="club obsessive" onclick="window.location='product.html'">
+        <span class="budget-tag">Under $100</span>
+        <span class="product-chip">Tech</span>
+        <div class="product-illus">
+          <svg viewBox="0 0 100 110" fill="none"><rect x="32" y="6" width="36" height="54" rx="5" stroke="#0d1b2a" stroke-width="2.5" fill="none"/><circle cx="50" cy="30" r="8" stroke="#d4e820" stroke-width="1.5" fill="none"/><line x1="50" y1="60" x2="28" y2="100" stroke="#0d1b2a" stroke-width="2" stroke-linecap="round"/><line x1="50" y1="60" x2="50" y2="100" stroke="#0d1b2a" stroke-width="2" stroke-linecap="round"/><line x1="50" y1="60" x2="72" y2="100" stroke="#0d1b2a" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="100" r="3" fill="#d4e820"/><circle cx="50" cy="100" r="3" fill="#d4e820"/><circle cx="72" cy="100" r="3" fill="#d4e820"/></svg>
+        </div>
+        <p class="product-name">Phone Tripod</p>
+        <p class="product-tagline">Capture every point, hands-free</p>
+        <div class="product-footer">
+          <span class="product-price">$55</span>
+          <button class="btn-cart" onclick="event.stopPropagation(); addToCart('Phone Tripod')">Add +</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BUNDLES -->
+  <div class="bundles-section">
+    <p class="section-label">Curated Sets</p>
+    <h2 class="section-heading">Gift Bundles</h2>
+    <div class="bundles-grid">
+      <div class="bundle-card">
+        <p class="bundle-name">The Starter Fan</p>
+        <p class="bundle-desc">The perfect intro gift for someone just getting into the game.</p>
+        <div class="bundle-items">
+          <span class="bundle-item">Classic Tennis Ball 3-Pack</span>
+          <span class="bundle-item">Mini Ball Keychain</span>
+          <span class="bundle-item">Love All T-Shirt</span>
+        </div>
+        <div class="bundle-footer">
+          <span class="bundle-price">$52</span>
+          <span class="bundle-save">Save $8</span>
+        </div>
+        <button class="btn-primary" style="align-self:flex-start" onclick="addToCart('Starter Fan Bundle')">Add Bundle</button>
+      </div>
+      <div class="bundle-card">
+        <p class="bundle-name">The Court Obsessive</p>
+        <p class="bundle-desc">For the player who lives and breathes tennis, on and off the court.</p>
+        <div class="bundle-items">
+          <span class="bundle-item">Glow-in-the-Dark Balls</span>
+          <span class="bundle-item">Serve Series Poster</span>
+          <span class="bundle-item">Phone Tripod</span>
+          <span class="bundle-item">Deuce Vintage Tee</span>
+        </div>
+        <div class="bundle-footer">
+          <span class="bundle-price">$142</span>
+          <span class="bundle-save">Save $12</span>
+        </div>
+        <button class="btn-primary" style="align-self:flex-start" onclick="addToCart('Court Obsessive Bundle')">Add Bundle</button>
+      </div>
+      <div class="bundle-card">
+        <p class="bundle-name">The Home Gallery</p>
+        <p class="bundle-desc">Two beautifully framed tennis art prints — gift-wrapped together.</p>
+        <div class="bundle-items">
+          <span class="bundle-item">Court Lines Poster</span>
+          <span class="bundle-item">Serve Series Poster</span>
+          <span class="bundle-item">Gift wrapping included</span>
+        </div>
+        <div class="bundle-footer">
+          <span class="bundle-price">$56</span>
+          <span class="bundle-save">Save $8</span>
+        </div>
+        <button class="btn-primary" style="align-self:flex-start" onclick="addToCart('Home Gallery Bundle')">Add Bundle</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <span class="footer-logo"><span>Tennis</span> Gift</span>
+      <p class="footer-tagline">The perfect gift for every tennis fan.</p>
+    </div>
+    <div>
+      <p class="footer-col-title">Shop</p>
+      <ul class="footer-links">
+        <li><a href="index.html#products">All Products</a></li>
+        <li><a href="gift-guide.html">Gift Guide</a></li>
+        <li><a href="cart.html">Cart</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer-col-title">Company</p>
+      <ul class="footer-links">
+        <li><a href="about.html">About</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer-col-title">Help</p>
+      <ul class="footer-links">
+        <li><a href="#">Shipping</a></li>
+        <li><a href="#">Returns</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Tennis Gift. All rights reserved.</span>
+    <span>Made for fans, gifted with love.</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const activeFilters = { budget: 'all', occasion: 'all', recipient: 'all' };
+  let toastTimer;
+
+  function applyFilter(btn) {
+    const filter = btn.dataset.filter;
+    const value = btn.dataset.value;
+    activeFilters[filter] = value;
+    btn.closest('.filter-chips').querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterProducts();
+  }
+
+  function filterProducts() {
+    const cards = document.querySelectorAll('.product-card');
+    let visible = 0;
+    cards.forEach(card => {
+      const b = activeFilters.budget === 'all' || card.dataset.budget.includes(activeFilters.budget);
+      const o = activeFilters.occasion === 'all' || card.dataset.occasion.includes(activeFilters.occasion);
+      const r = activeFilters.recipient === 'all' || card.dataset.recipient.includes(activeFilters.recipient);
+      const show = b && o && r;
+      card.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    document.getElementById('results-count').textContent = visible + ' gift' + (visible !== 1 ? 's' : '');
+  }
+
+  function sortProducts(val) {
+    const grid = document.getElementById('product-grid');
+    const cards = [...grid.querySelectorAll('.product-card')];
+    if (val === 'price-asc') cards.sort((a, b) => +a.dataset.price - +b.dataset.price);
+    else if (val === 'price-desc') cards.sort((a, b) => +b.dataset.price - +a.dataset.price);
+    cards.forEach(c => grid.appendChild(c));
+  }
+
+  function addToCart(name) {
+    const t = document.getElementById('toast');
+    t.textContent = '✓ ' + name + ' added to cart';
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+</script>
+</body>
+</html>

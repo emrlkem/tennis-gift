@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Cart — Tennis Gift</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  body { background: var(--bg-light); }
+
+  .cart-layout {
+    display: grid; grid-template-columns: 1fr 380px; gap: 48px;
+    padding: 40px 64px 80px; max-width: 1400px; margin: 0 auto;
+    align-items: start;
+  }
+
+  /* ── CART ITEMS ── */
+  .cart-heading { font-family: var(--bebas); font-size: 52px; color: var(--text-dark); font-weight: 300; font-style: italic; line-height: 1; margin-bottom: 32px; }
+  .cart-items { display: flex; flex-direction: column; gap: 16px; }
+  .cart-item {
+    background: #fff; border-radius: 16px; padding: 24px;
+    display: flex; align-items: center; gap: 24px;
+    border: 1px solid var(--border-light);
+    transition: box-shadow 0.2s;
+  }
+  .cart-item:hover { box-shadow: 0 4px 20px rgba(13,27,42,0.06); }
+  .cart-item-img {
+    width: 88px; height: 88px; background: var(--card-bg); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .cart-item-img svg { width: 56px; height: 56px; }
+  .cart-item-info { flex: 1; }
+  .cart-item-chip { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
+  .cart-item-name { font-family: var(--bebas); font-size: 24px; color: var(--text-dark); font-weight: 600; line-height: 1.1; }
+  .cart-item-meta { font-size: 12px; color: var(--muted); font-weight: 300; margin-top: 4px; }
+  .cart-item-gift { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--accent); background: rgba(212,232,32,0.1); border-radius: 100px; padding: 3px 10px; margin-top: 6px; }
+  .cart-item-controls { display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
+  .qty-control { display: flex; align-items: center; border: 1.5px solid var(--border-light); border-radius: 100px; overflow: hidden; }
+  .qty-btn { width: 34px; height: 36px; background: none; border: none; font-size: 16px; cursor: pointer; color: var(--text-dark); transition: background 0.2s; }
+  .qty-btn:hover { background: var(--card-bg); }
+  .qty-val { width: 28px; text-align: center; font-family: var(--mono); font-size: 13px; font-weight: 500; }
+  .cart-item-price { font-family: var(--mono); font-size: 18px; color: var(--text-dark); font-weight: 500; min-width: 52px; text-align: right; }
+  .cart-item-remove { background: none; border: none; cursor: pointer; color: var(--muted); padding: 6px; border-radius: 6px; transition: color 0.2s; font-size: 18px; line-height: 1; }
+  .cart-item-remove:hover { color: #c0392b; }
+
+  /* PROMO */
+  .promo-row { display: flex; gap: 0; margin-top: 24px; }
+  .promo-input {
+    flex: 1; font-family: var(--dm); font-size: 14px; color: var(--text-dark);
+    border: 1.5px solid var(--border-light); border-right: none;
+    border-radius: 100px 0 0 100px; padding: 14px 20px; outline: none;
+    transition: border-color 0.2s; background: #fff;
+  }
+  .promo-input:focus { border-color: var(--accent); }
+  .promo-input::placeholder { color: var(--muted); }
+  .promo-btn {
+    font-family: var(--dm); font-size: 13px; font-weight: 500;
+    background: var(--text-dark); color: var(--text-light);
+    border: none; border-radius: 0 100px 100px 0; padding: 14px 22px;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .promo-btn:hover { background: var(--accent); }
+  .promo-success { display: none; font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.1em; margin-top: 10px; }
+  .promo-success.show { display: block; }
+
+  /* ── ORDER SUMMARY ── */
+  .order-summary {
+    background: #fff; border-radius: 20px; padding: 32px;
+    border: 1px solid var(--border-light); position: sticky; top: 92px;
+  }
+  .summary-title { font-family: var(--bebas); font-size: 28px; color: var(--text-dark); font-weight: 600; letter-spacing: 0.04em; margin-bottom: 24px; }
+  .summary-lines { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+  .summary-line { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+  .summary-line .label { color: var(--muted); font-weight: 300; }
+  .summary-line .value { color: var(--text-dark); font-family: var(--mono); font-size: 14px; }
+  .summary-line.discount .value { color: #27ae60; }
+  .summary-divider { height: 1px; background: var(--border-light); margin: 8px 0; }
+  .summary-total { display: flex; justify-content: space-between; align-items: baseline; }
+  .summary-total .label { font-size: 16px; font-weight: 500; color: var(--text-dark); }
+  .summary-total .value { font-family: var(--mono); font-size: 26px; color: var(--text-dark); font-weight: 500; }
+  .checkout-btn { width: 100%; margin-top: 24px; font-size: 16px; padding: 18px; border-radius: 14px; }
+  .checkout-btn.done { background: #27ae60; }
+  .secure-note { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: var(--muted); margin-top: 14px; font-weight: 300; }
+  .secure-note svg { width: 14px; height: 14px; }
+
+  /* GIFT SUMMARY ITEM */
+  .summary-gift-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+  .summary-gift-item:last-of-type { border-bottom: none; margin-bottom: 8px; }
+  .summary-gift-dot { width: 28px; height: 28px; background: var(--card-bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .summary-gift-dot svg { width: 18px; height: 18px; }
+  .summary-gift-name { font-size: 13px; color: var(--text-dark); font-weight: 400; flex: 1; line-height: 1.3; }
+  .summary-gift-price { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+
+  /* CHECKOUT STEPS */
+  .checkout-section { display: none; }
+  .checkout-section.active { display: block; }
+  .step-header { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #080c18; font-family: var(--mono); font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-title { font-family: var(--bebas); font-size: 32px; color: var(--text-dark); font-weight: 600; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .form-grid.full { grid-template-columns: 1fr; }
+  .form-field { display: flex; flex-direction: column; gap: 6px; }
+  .form-field label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+  .form-field input, .form-field select {
+    font-family: var(--dm); font-size: 14px; color: var(--text-dark);
+    border: 1.5px solid var(--border-light); border-radius: 10px; padding: 13px 16px;
+    background: #fff; outline: none; transition: border-color 0.2s;
+  }
+  .form-field input:focus, .form-field select:focus { border-color: var(--accent); }
+  .form-field input::placeholder { color: var(--muted); }
+  .continue-btn { margin-top: 8px; }
+  .back-link { font-size: 13px; color: var(--muted); cursor: pointer; background: none; border: none; padding: 0; margin-top: 12px; text-decoration: underline; font-family: var(--dm); }
+  .back-link:hover { color: var(--accent); }
+
+  /* PROGRESS BAR */
+  .checkout-progress { display: flex; gap: 0; margin-bottom: 36px; }
+  .progress-step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; }
+  .progress-step::before { content: ''; position: absolute; top: 12px; left: 50%; width: 100%; height: 2px; background: var(--border-light); z-index: 0; }
+  .progress-step:last-child::before { display: none; }
+  .progress-dot { width: 24px; height: 24px; border-radius: 50%; background: var(--border-light); border: 2px solid var(--border-light); position: relative; z-index: 1; transition: all 0.3s; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+  .progress-step.done .progress-dot { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .progress-step.active .progress-dot { border-color: var(--accent); background: #fff; }
+  .progress-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; }
+  .progress-step.active .progress-label, .progress-step.done .progress-label { color: var(--accent); }
+
+  /* EMPTY STATE */
+  .empty-cart { text-align: center; padding: 80px 40px; }
+  .empty-cart svg { width: 80px; height: 80px; color: var(--border-light); margin: 0 auto 24px; display: block; }
+  .empty-cart h2 { font-family: var(--bebas); font-size: 36px; color: var(--muted); margin-bottom: 12px; font-style: italic; }
+  .empty-cart p { font-size: 15px; color: var(--muted); font-weight: 300; margin-bottom: 28px; }
+
+  @media (max-width: 900px) {
+    .cart-layout { grid-template-columns: 1fr; padding: 24px 28px 60px; gap: 32px; }
+    .order-summary { position: static; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html"><span>Tennis</span> Gift</a>
+  <ul class="nav-links">
+    <li><a href="index.html#products">Shop</a></li>
+    <li><a href="gift-guide.html">Gift Guide</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="index.html#testimonials">Reviews</a></li>
+  </ul>
+  <div class="nav-right">
+    <svg class="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+    </svg>
+    <a class="btn-fitted" href="gift-guide.html">Find a Gift →</a>
+  </div>
+</nav>
+
+<div class="page-body">
+  <div class="breadcrumb">
+    <a href="index.html">Home</a>
+    <span class="breadcrumb-sep">/</span>
+    <span id="bc-label">Cart</span>
+  </div>
+
+  <div class="cart-layout">
+    <!-- LEFT COLUMN -->
+    <div>
+      <!-- CART VIEW -->
+      <div class="checkout-section active" id="view-cart">
+        <h1 class="cart-heading">Your Cart</h1>
+        <div class="cart-items" id="cart-items">
+
+          <div class="cart-item" id="item-balls">
+            <div class="cart-item-img">
+              <svg viewBox="0 0 60 60" fill="none"><circle cx="30" cy="30" r="24" fill="#c8f025" opacity="0.14"/><circle cx="30" cy="30" r="24" stroke="#c8f025" stroke-width="2.5"/><path d="M10 22 Q30 30 10 38" stroke="white" stroke-width="1.5" fill="none" opacity="0.5"/><path d="M50 22 Q30 30 50 38" stroke="white" stroke-width="1.5" fill="none" opacity="0.5"/></svg>
+            </div>
+            <div class="cart-item-info">
+              <p class="cart-item-chip">Balls</p>
+              <p class="cart-item-name">Classic Tennis Ball 3-Pack</p>
+              <p class="cart-item-meta">Tournament-grade felt</p>
+              <span class="cart-item-gift">🎁 Gift wrap included</span>
+            </div>
+            <div class="cart-item-controls">
+              <div class="qty-control">
+                <button class="qty-btn" onclick="changeQty('balls', -1)">−</button>
+                <span class="qty-val" id="qty-balls">1</span>
+                <button class="qty-btn" onclick="changeQty('balls', 1)">+</button>
+              </div>
+              <span class="cart-item-price" id="price-balls">$14</span>
+              <button class="cart-item-remove" onclick="removeItem('balls')">×</button>
+            </div>
+          </div>
+
+          <div class="cart-item" id="item-tshirt">
+            <div class="cart-item-img">
+              <svg viewBox="0 0 60 50" fill="none"><path d="M14 4 L3 13 L11 16 L11 46 L49 46 L49 16 L57 13 L46 4 Q38 9 30 9 Q22 9 14 4Z" stroke="#0d1b2a" stroke-width="2" fill="none"/><text x="30" y="30" font-family="serif" font-size="7" fill="#d4e820" text-anchor="middle" letter-spacing="1">LOVE ALL</text></svg>
+            </div>
+            <div class="cart-item-info">
+              <p class="cart-item-chip">Apparel</p>
+              <p class="cart-item-name">Love All Graphic T-Shirt</p>
+              <p class="cart-item-meta">Size: M</p>
+            </div>
+            <div class="cart-item-controls">
+              <div class="qty-control">
+                <button class="qty-btn" onclick="changeQty('tshirt', -1)">−</button>
+                <span class="qty-val" id="qty-tshirt">1</span>
+                <button class="qty-btn" onclick="changeQty('tshirt', 1)">+</button>
+              </div>
+              <span class="cart-item-price" id="price-tshirt">$38</span>
+              <button class="cart-item-remove" onclick="removeItem('tshirt')">×</button>
+            </div>
+          </div>
+
+          <div class="cart-item" id="item-poster">
+            <div class="cart-item-img">
+              <svg viewBox="0 0 60 72" fill="none"><rect x="3" y="3" width="54" height="66" rx="3" stroke="#0d1b2a" stroke-width="2"/><rect x="9" y="10" width="42" height="46" rx="2" stroke="#d4e820" stroke-width="1.5" fill="none"/><line x1="9" y1="33" x2="51" y2="33" stroke="#d4e820" stroke-width="1"/><line x1="30" y1="10" x2="30" y2="56" stroke="#d4e820" stroke-width="1"/></svg>
+            </div>
+            <div class="cart-item-info">
+              <p class="cart-item-chip">Art</p>
+              <p class="cart-item-name">Court Lines Poster</p>
+              <p class="cart-item-meta">A3 print · Unframed</p>
+              <span class="cart-item-gift">🎁 Gift wrap included · "Happy Birthday!"</span>
+            </div>
+            <div class="cart-item-controls">
+              <div class="qty-control">
+                <button class="qty-btn" onclick="changeQty('poster', -1)">−</button>
+                <span class="qty-val" id="qty-poster">1</span>
+                <button class="qty-btn" onclick="changeQty('poster', 1)">+</button>
+              </div>
+              <span class="cart-item-price" id="price-poster">$29</span>
+              <button class="cart-item-remove" onclick="removeItem('poster')">×</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- PROMO -->
+        <div class="promo-row">
+          <input class="promo-input" id="promo-input" type="text" placeholder="Promo code">
+          <button class="promo-btn" onclick="applyPromo()">Apply</button>
+        </div>
+        <p class="promo-success" id="promo-success">✓ GIFT15 applied — 15% off your order!</p>
+      </div>
+
+      <!-- CHECKOUT: DETAILS -->
+      <div class="checkout-section" id="view-details">
+        <div class="checkout-progress">
+          <div class="progress-step done" id="prog-cart">
+            <div class="progress-dot">✓</div>
+            <span class="progress-label">Cart</span>
+          </div>
+          <div class="progress-step active" id="prog-details">
+            <div class="progress-dot"></div>
+            <span class="progress-label">Details</span>
+          </div>
+          <div class="progress-step" id="prog-payment">
+            <div class="progress-dot"></div>
+            <span class="progress-label">Payment</span>
+          </div>
+          <div class="progress-step" id="prog-confirm">
+            <div class="progress-dot"></div>
+            <span class="progress-label">Confirm</span>
+          </div>
+        </div>
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <p class="step-title">Delivery Details</p>
+        </div>
+        <div class="form-grid">
+          <div class="form-field"><label>First Name</label><input type="text" placeholder="Jane"></div>
+          <div class="form-field"><label>Last Name</label><input type="text" placeholder="Smith"></div>
+        </div>
+        <div class="form-grid full">
+          <div class="form-field"><label>Email</label><input type="email" placeholder="jane@example.com"></div>
+          <div class="form-field"><label>Address</label><input type="text" placeholder="123 Court Lane"></div>
+          <div class="form-field"><label>City</label><input type="text" placeholder="London"></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field"><label>Post Code</label><input type="text" placeholder="SW1A 1AA"></div>
+          <div class="form-field"><label>Country</label>
+            <select><option>United Kingdom</option><option>United States</option><option>Australia</option><option>Japan</option><option>Spain</option></select>
+          </div>
+        </div>
+        <button class="btn-primary continue-btn" onclick="goToPayment()">Continue to Payment →</button>
+        <button class="back-link" onclick="goTo('cart')">← Back to Cart</button>
+      </div>
+
+      <!-- CHECKOUT: PAYMENT -->
+      <div class="checkout-section" id="view-payment">
+        <div class="checkout-progress">
+          <div class="progress-step done"><div class="progress-dot">✓</div><span class="progress-label">Cart</span></div>
+          <div class="progress-step done"><div class="progress-dot">✓</div><span class="progress-label">Details</span></div>
+          <div class="progress-step active"><div class="progress-dot"></div><span class="progress-label">Payment</span></div>
+          <div class="progress-step"><div class="progress-dot"></div><span class="progress-label">Confirm</span></div>
+        </div>
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <p class="step-title">Payment</p>
+        </div>
+        <div class="form-grid full">
+          <div class="form-field"><label>Name on Card</label><input type="text" placeholder="Jane Smith"></div>
+          <div class="form-field"><label>Card Number</label><input type="text" placeholder="4242 4242 4242 4242" maxlength="19"></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field"><label>Expiry</label><input type="text" placeholder="MM / YY" maxlength="7"></div>
+          <div class="form-field"><label>CVV</label><input type="text" placeholder="•••" maxlength="3"></div>
+        </div>
+        <button class="btn-primary continue-btn" onclick="goToConfirm()">Place Order →</button>
+        <button class="back-link" onclick="goTo('details')">← Back to Details</button>
+      </div>
+
+      <!-- CHECKOUT: CONFIRM -->
+      <div class="checkout-section" id="view-confirm">
+        <div style="text-align:center; padding: 40px 20px;">
+          <div style="width:72px;height:72px;background:rgba(212,232,32,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d4e820" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <h2 style="font-family:var(--bebas);font-size:48px;color:var(--text-dark);font-weight:300;font-style:italic;margin-bottom:12px;">Order Placed!</h2>
+          <p style="font-size:16px;color:var(--muted);font-weight:300;line-height:1.7;max-width:460px;margin:0 auto 32px;">Thanks for your order. A confirmation email is on its way. Your gifts will be beautifully packed and shipped within 1–2 business days.</p>
+          <a href="index.html" class="btn-primary" style="text-decoration:none;display:inline-block;">Continue Shopping</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ORDER SUMMARY SIDEBAR -->
+    <div>
+      <div class="order-summary">
+        <p class="summary-title">Order Summary</p>
+
+        <div class="summary-gift-item">
+          <div class="summary-gift-dot"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#c8f025" stroke-width="1.5"/></svg></div>
+          <span class="summary-gift-name">Classic Tennis Ball 3-Pack</span>
+          <span class="summary-gift-price">$14</span>
+        </div>
+        <div class="summary-gift-item">
+          <div class="summary-gift-dot"><svg viewBox="0 0 20 16" fill="none"><path d="M4 2L1 5l4 2v10h10V7l4-2-3-3Q13 5 10 5Q7 5 4 2Z" stroke="#d4e820" stroke-width="1.5" fill="none"/></svg></div>
+          <span class="summary-gift-name">Love All Graphic T-Shirt</span>
+          <span class="summary-gift-price">$38</span>
+        </div>
+        <div class="summary-gift-item">
+          <div class="summary-gift-dot"><svg viewBox="0 0 20 22" fill="none"><rect x="2" y="2" width="16" height="18" rx="2" stroke="#d4e820" stroke-width="1.5"/></svg></div>
+          <span class="summary-gift-name">Court Lines Poster</span>
+          <span class="summary-gift-price">$29</span>
+        </div>
+
+        <div class="summary-lines" id="summary-lines">
+          <div class="summary-line"><span class="label">Subtotal</span><span class="value" id="subtotal">$81</span></div>
+          <div class="summary-line"><span class="label">Gift wrapping (×2)</span><span class="value">$4</span></div>
+          <div class="summary-line"><span class="label">Shipping</span><span class="value" id="shipping">Free</span></div>
+          <div class="summary-line discount" id="discount-line" style="display:none"><span class="label">Promo (GIFT15)</span><span class="value" id="discount-val">−$0</span></div>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-total">
+          <span class="label">Total</span>
+          <span class="value" id="order-total">$85</span>
+        </div>
+
+        <button class="btn-primary checkout-btn" id="checkout-btn" onclick="nextStep()">Checkout →</button>
+        <div class="secure-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L3 7v8c0 5 4 9 9 11 5-2 9-6 9-11V7z"/></svg>
+          Secure checkout · SSL encrypted
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <span class="footer-logo"><span>Tennis</span> Gift</span>
+      <p class="footer-tagline">The perfect gift for every tennis fan.</p>
+    </div>
+    <div><p class="footer-col-title">Shop</p><ul class="footer-links"><li><a href="index.html#products">All Products</a></li><li><a href="gift-guide.html">Gift Guide</a></li></ul></div>
+    <div><p class="footer-col-title">Company</p><ul class="footer-links"><li><a href="about.html">About</a></li><li><a href="#">Contact</a></li></ul></div>
+    <div><p class="footer-col-title">Help</p><ul class="footer-links"><li><a href="#">Shipping</a></li><li><a href="#">Returns</a></li><li><a href="#">FAQ</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Tennis Gift. All rights reserved.</span>
+    <span>Made for fans, gifted with love.</span>
+  </div>
+</footer>
+
+<script>
+  const prices = { balls: 14, tshirt: 38, poster: 29 };
+  const qtys = { balls: 1, tshirt: 1, poster: 1 };
+  let discountApplied = false;
+  let currentStep = 'cart';
+
+  function changeQty(item, delta) {
+    qtys[item] = Math.max(1, qtys[item] + delta);
+    document.getElementById('qty-' + item).textContent = qtys[item];
+    document.getElementById('price-' + item).textContent = '$' + (prices[item] * qtys[item]);
+    updateTotal();
+  }
+
+  function removeItem(item) {
+    document.getElementById('item-' + item).style.opacity = '0.4';
+    document.getElementById('item-' + item).style.pointerEvents = 'none';
+    prices[item] = 0; qtys[item] = 0;
+    updateTotal();
+  }
+
+  function updateTotal() {
+    const sub = Object.keys(prices).reduce((s, k) => s + prices[k] * qtys[k], 0);
+    const gift = 4;
+    let disc = discountApplied ? Math.round((sub + gift) * 0.15) : 0;
+    const total = sub + gift - disc;
+    document.getElementById('subtotal').textContent = '$' + sub;
+    if (discountApplied) {
+      document.getElementById('discount-line').style.display = 'flex';
+      document.getElementById('discount-val').textContent = '−$' + disc;
+    }
+    document.getElementById('order-total').textContent = '$' + total;
+  }
+
+  function applyPromo() {
+    const code = document.getElementById('promo-input').value.trim().toUpperCase();
+    if (code === 'GIFT15') {
+      discountApplied = true;
+      document.getElementById('promo-success').classList.add('show');
+      updateTotal();
+    }
+  }
+
+  function nextStep() {
+    if (currentStep === 'cart') goTo('details');
+    else if (currentStep === 'details') goToPayment();
+    else if (currentStep === 'payment') goToConfirm();
+  }
+
+  function goTo(step) {
+    document.querySelectorAll('.checkout-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('view-' + step).classList.add('active');
+    document.getElementById('bc-label').textContent = step.charAt(0).toUpperCase() + step.slice(1);
+    currentStep = step;
+    updateCheckoutBtn();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goToPayment() { goTo('payment'); }
+
+  function goToConfirm() {
+    document.querySelectorAll('.checkout-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('view-confirm').classList.add('active');
+    document.getElementById('checkout-btn').style.display = 'none';
+    currentStep = 'confirm';
+  }
+
+  function updateCheckoutBtn() {
+    const btn = document.getElementById('checkout-btn');
+    btn.style.display = '';
+    if (currentStep === 'cart') btn.textContent = 'Checkout →';
+    else if (currentStep === 'details') btn.textContent = 'Continue to Payment →';
+    else btn.textContent = 'Place Order →';
+  }
+</script>
+</body>
+</html>
